@@ -10,6 +10,9 @@
 ## Libs
 
 >pip install TwitterSearch
+
 >pip install textblob
+
 >pip install tweepy
+
 >pip install numpy 
