@@ -1,3 +1,8 @@
+# Tokens de acessos
+/src/persistencia/token.ini
+
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
