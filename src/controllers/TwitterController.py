@@ -1,4 +1,4 @@
-from persistencia.Connection import fn_getToken
+from persistencia.Connection import Connection
 from TwitterSearch import *
 from textblob import TextBlob as tb
 import tweepy
@@ -8,18 +8,20 @@ import numpy as np
 class TwitterController:
     
     def __init__(self):
-       self.connection = fn_getToken()
+        connection = Connection()
+        self.connection = connection.fn_getToken()
  
     def get_result(self):
         try:
             ts = TwitterSearch(
-                self.connection
+                consumer_key = self.connection['consumer_key'],
+                consumer_secret = self.connection['consumer_secret'],
+                access_token = self.connection['access_token'],
+                access_token_secret = self.connection['access_token_secret']
             )
 
             tso = TwitterSearchOrder()
-            tso.set_keywords(['covid-19','covid','pandemia',
-                              'vacina','saude','saúde']
-                            )
+            tso.set_keywords(['covid-19'])
             tso.set_language('pt')
             #tso.set_geocode(-10.6470236,-39.9841415,100)
 
