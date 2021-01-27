@@ -1,24 +1,25 @@
+from persistencia.Connection import fn_getToken
 from TwitterSearch import *
 from textblob import TextBlob as tb
 import tweepy
 import numpy as np
-from textblob import TextBlob as tb
 
 
 class TwitterController:
     
     def __init__(self):
-       self.connection
-
-
+       self.connection = fn_getToken()
+ 
     def get_result(self):
         try:
             ts = TwitterSearch(
-                #chaves de acesso
+                self.connection
             )
 
             tso = TwitterSearchOrder()
-            tso.set_keywords(['elderick'])
+            tso.set_keywords(['covid-19','covid','pandemia',
+                              'vacina','saude','saúde']
+                            )
             tso.set_language('pt')
             #tso.set_geocode(-10.6470236,-39.9841415,100)
 
