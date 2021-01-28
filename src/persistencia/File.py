@@ -8,13 +8,18 @@ class File:
         self.pathFile = os.path.dirname(os.path.realpath(__file__))+"/"+nameFile
         self.data = data
 
-    def file_log(self):
+    def save(self, titulo = None, data = None):
         jsonData = self.load_log()
-        title = time.strftime('%Y%m%d_%H:%M:%S', time.localtime())
-        jsonData[title] = self.data
+
+        if(titulo == None):
+            titulo = time.strftime('%Y%m%d_%H:%M:%S', time.localtime())
+
+        if(data != None ):
+            self.data = data
         
+        jsonData[titulo] = self.data
         with open(self.pathFile, 'w') as jsonFile:
-            json.dump(jsonData, jsonFile, indent=4)
+            json.dump(jsonData, jsonFile, indent=2)
 
         # with open(pathFile, 'a') as file:
         #   file.write(',')
