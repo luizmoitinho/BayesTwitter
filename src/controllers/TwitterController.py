@@ -24,7 +24,7 @@ class TwitterController:
             )
 
             tso = TwitterSearchOrder()
-            keywords = 'covid-19'
+            keywords = 'leite condensado'
             tso.set_keywords([keywords])
 
             tso.set_since(datetime.date(2020, 2, 9))
@@ -33,10 +33,10 @@ class TwitterController:
             #tso.set_geocode(-10.6470236,-39.9841415,100)
 
             i = 0             
-            file = File('base_tweets',[])
+            file = File('base_tweets.json',[])
             jsonData = []
             for tweet in ts.search_tweets_iterable(tso):
-                if(i >= 10):
+                if(i >= 1000 ):
                     break
                 jsonData.append({
                     "created_at": tweet['created_at'],
@@ -57,7 +57,7 @@ class TwitterController:
                 })
 
                 i = i+1
-            
+
             file.save(keywords,jsonData)
 
         except TwitterSearchException as e:
