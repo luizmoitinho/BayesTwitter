@@ -4,19 +4,13 @@ import numpy as np
 import time
 import os
 import re
-from IPython.display import display
-import matplotlib.pyplot as plt
-import seaborn as sns
-from wordcloud import WordCloud, ImageColorGenerator, STOPWORDS
+import pickle
 from textblob.classifiers import NaiveBayesClassifier
 import nltk
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
-from geopy.geocoders import Nominatim
-import folium
-from folium import plugins
-#from geopy.geocoders import Nominatim
-#!python -m textblob.download_corpora
+
+#-----------------TWITTER-----------------#
 
 #Keys for autentication
 consumer_key='srt5WEhYgrJ5SFGkCtkDSvjzH'
@@ -39,7 +33,7 @@ tweets = []
 info = []
 count = 1
 for tweet in tweepy.Cursor(api.search,
-                           q="hamburguer",
+                           q="assassino",
                            tweet_mode='extended',
                            rpp=100,
                            result_type="popular",
@@ -59,8 +53,8 @@ for tweet in tweepy.Cursor(api.search,
     file.write(newtweet+'\n')
     file.close()
     
-    time.sleep(0.5)
-    if(count == 5):
+    #time.sleep(0.5)
+    if(count == 50):
         break
     count = count + 1
 
@@ -100,58 +94,67 @@ for source in tweets_df['Source']:
             percent[index] += 1
             pass
 
-# base_path = 'ReLi-Lex'
-# train = []
-# wordsPT = []
-# wordsPT_sentiments = []
 
-# files = [os.path.join(base_path, f) for f in os.listdir(base_path)]
+#------------------------------------------------------------#
 
-# for file in files:
-#     t = 1 if '_Positivos' in file else -1
-#     with open(file, 'r', encoding='latin1') as content_file:
-#         content = content_file.read()
-#         all = re.findall('\[.*?\]',content)
-#         for w in all:
-#             wordsPT.append((w[1:-1]))
-#             wordsPT_sentiments.append(t)
-#             train.append((w[1:-1], t))
-
-#Importando o Léxico de Palavras com polaridades
-sentilexpt = open('SentiLex-lem-PT02.txt')
-
-#Criando um dicionário de palavras com a respectiva polaridade.
-
+base_path = 'DataSet'
+train = []
 wordsPT = []
 wordsPT_sentiments = []
-train = []
-for i in sentilexpt.readlines():
-    pos_ponto = i.find('.')
-    palavra = (i[:pos_ponto])
-    pol_pos = i.find('POL')
-    polaridade = (i[pol_pos+7:pol_pos+9]).replace(';', '')
-    wordsPT.append(palavra)
-    wordsPT_sentiments.append(int(polaridade))
-    train.append((palavra, int(polaridade)))
 
-'''
-========= COMENTARIOS =================
-(palavra, polaridade) * 7k =
+files = [os.path.join(base_path, f) for f in os.listdir(base_path)]
 
-gente tinha mais  coisa la embaixo
+for file in files:
+    t = 1 if '_positive' in file else -1
+    with open(file, 'r', encoding='utf-8') as content_file:
+        content = content_file.read()
+        all = content.split('\n')
+        for w in all:
+            wordsPT.append(w)
+            wordsPT_sentiments.append(t)
+            train.append((w, t))
 
-'''
-cl = NaiveBayesClassifier(train)
+# wordsPT = []
+# wordsPT_sentiments = []
+# train = []
 
-### Training Model
+# #Importando o Léxico de Palavras com polaridades
+# sentilexpt = open('SentiLex-lem-PT02.txt')
+
+# #Criando um dicionário de palavras com a respectiva polaridade.
+# for i in sentilexpt.readlines():
+#     pos_ponto = i.find('.')
+#     palavra = (i[:pos_ponto])
+#     pol_pos = i.find('POL')
+#     polaridade = (i[pol_pos+7:pol_pos+9]).replace(';', '')
+#     wordsPT.append(palavra)
+#     wordsPT_sentiments.append(int(polaridade))
+#     train.append((palavra, int(polaridade)))
+
+# cl = NaiveBayesClassifier(train)
+# save_classifier = open("naivebayes.pickle","wb")
+# pickle.dump(cl, save_classifier)
+# save_classifier.close()
+# classifier_f = open("naivebayes.pickle", "rb")
+# classifier = pickle.load(classifier_f)
+# classifier_f.close()
+
+# cl = NaiveBayesClassifier(train)
+# prob_dist = cl.prob_classify('Eu não me odeio')
+# # print(prob_dist.max())
+# print(prob_dist.prob(-1))
+# print(prob_dist.prob(1))
+
+# for i in range(len(test)):
+#   prob_dist = classifier.prob_classify(test[i])
+#   print(f'[{i}] - ', prob_dist.max())
+
 vectorizer = CountVectorizer(analyzer="word")
 freq_tweets = vectorizer.fit_transform(wordsPT)
-print(freq_tweets)
 modelo = MultinomialNB()
 modelo.fit(freq_tweets,wordsPT_sentiments)
 
 ### Sentiment Analisys
-
 def clean_tweet(tweet):
     return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
 
@@ -162,13 +165,11 @@ for tw in tweets_df['Tweets']:
     tweetsarray.append(text)
 
 predictionData = vectorizer.transform(tweets_df['Tweets'])
-tweets_df['SA NLTK'] = modelo.predict(predictionData)
+tweets_df['SA NLTK']  = modelo.predict(predictionData)
 
-"""### Results of Sentiment Analysis"""
+for i in range(len(tweets_df['SA NLTK'])):
+  print(tweets_df['Tweets'][i], ' : ', tweets_df['SA NLTK'][i])
 
-#Sentiment Analysis Results
-print(tweets_df['Tweets'])
-print(tweets_df['SA NLTK'])
 pos_tweets = [ tweet for index, tweet in enumerate(tweets_df['Tweets']) if tweets_df['SA NLTK'][index] > 0]
 neg_tweets = [ tweet for index, tweet in enumerate(tweets_df['Tweets']) if tweets_df['SA NLTK'][index] < 0]
 
@@ -177,4 +178,3 @@ print("Porcentagem de Tweets Negativos: {}%".format(len(neg_tweets)*100/len(twee
 
 sentiments = ['Positivos', 'Negativos']
 percents = [len(pos_tweets), len(neg_tweets)]
-
