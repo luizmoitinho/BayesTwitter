@@ -1,0 +1,1 @@
+pip3 install folium geopy sklearn wordcloud seaborn matplotlib IPython
