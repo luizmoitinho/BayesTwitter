@@ -10,6 +10,12 @@ import nltk
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 
+from flask import Flask, request
+from flask_cors import CORS
+import requests #pip install requests
+import json
+
+
 
 class TwitterAnalysis():
     
@@ -19,7 +25,7 @@ class TwitterAnalysis():
         if(BASE_DADOS == None):
             self.BASE_DADOS = "baseDados.txt"
         if(QUERY_PARAM == None):
-            self.QUERY_PARAM = "assassino"
+            self.QUERY_PARAM = "vacina"
 
         self.tweets = None
         self.info = None
@@ -147,18 +153,36 @@ class TwitterAnalysis():
 
         return pos_tweets, neg_tweets
 
-    def display_result(self,positive,negative ):
+    def get_result(self,positive,negative):
+        return len(positive)*100/len(self.tweets_df['Tweets']), len(negative)*100/len(self.tweets_df['Tweets'])
+
+    def display_result(self,positive,negative):
         print("Porcentagem de Tweets Positivos: {}%".format(len(positive)*100/len(self.tweets_df['Tweets'])))
         print("Porcentagem de Tweets Negativos: {}%".format(len(negative)*100/len(self.tweets_df['Tweets'])))
 
 
 
 
-analise = TwitterAnalysis()
 
-analise.tweets, analise.info = analise.search_tweets()
-analise.tweets_df =  analise.create_dataframe()
-analise.source_tweets(analise.tweets_df)
-analise.trainnig()
-resultado = analise.execute()
-analise.display_result(resultado[0],resultado[1])
+app = Flask("twitter_analysis")
+CORS(app)
+
+@app.route("/execute", methods = ['POST'])
+def execute_analysis():
+    analise = TwitterAnalysis()
+    analise.QUERY_PARAM = request.form['query_param']
+    analise.tweets, analise.info = analise.search_tweets()
+    analise.tweets_df =  analise.create_dataframe()
+    analise.source_tweets(analise.tweets_df)
+    analise.trainnig()
+    resultado = analise.execute()
+    #analise.display_result(resultado[0],resultado[1])
+    percent_positive, percent_negative =  analise.get_result(resultado[0],resultado[1])
+    return {
+        "positive":percent_positive,
+        "negative":percent_negative,
+        "data":[]
+    }
+
+
+app.run(debug=True)
