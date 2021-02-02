@@ -28,6 +28,31 @@ from geopy.geocoders import Nominatim
 #!python -m textblob.download_corpora
 
 
+"""### Training Model"""
+
+#Sentiment Analysis in Português and English
+
+base_path = 'ReLi-Lex'
+train = []
+wordsPT = []
+wordsPT_sentiments = []
+
+#Importando o Léxico de Palavras com polaridades
+sentilexpt = open('SentiLex-lem-PT02.txt')
+count = 0
+for i in sentilexpt.readlines():
+    pos_ponto = i.find('.')
+    palavra = (i[:pos_ponto])
+    pol_pos = i.find('POL')
+    polaridade = (i[pol_pos+7:pol_pos+9]).replace(';', '')
+    wordsPT.append(palavra)
+    wordsPT_sentiments.append(int(polaridade))
+    train.append((palavra, int(polaridade)))
+
+
+cl = NaiveBayesClassifier(train)
+
+
 
 #Keys for autentication
 consumer_key='srt5WEhYgrJ5SFGkCtkDSvjzH'
@@ -50,7 +75,7 @@ tweets = []
 info = []
 
 for tweet in tweepy.Cursor(api.search,
-                           q="assassino",
+                           q="vacina",
                            tweet_mode='extended',
                            rpp=100,
                            result_type="popular",
@@ -117,13 +142,14 @@ for source in tweets_df['Source']:
         sources.append(source)
 
 percent = np.zeros(len(sources))
-
+count = 0 
 for source in tweets_df['Source']:
     for index in range(len(sources)):
         if source == sources[index]:
             percent[index] += 1
             pass
 
+    
 newDF = pd.DataFrame({
  'source':percent,
 }, index=sources)
@@ -131,29 +157,6 @@ newDF = pd.DataFrame({
 sources_sorted = newDF.sort_values('source',ascending=False)
 ax = sources_sorted.source.plot(kind='barh',color='#002060')
 ax.get_xaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
-
-"""### Training Model"""
-
-#Sentiment Analysis in Português and English
-
-base_path = 'ReLi-Lex'
-train = []
-wordsPT = []
-wordsPT_sentiments = []
-
-#Importando o Léxico de Palavras com polaridades
-sentilexpt = open('SentiLex-lem-PT02.txt')
-
-for i in sentilexpt.readlines():
-    pos_ponto = i.find('.')
-    palavra = (i[:pos_ponto])
-    pol_pos = i.find('POL')
-    polaridade = (i[pol_pos+7:pol_pos+9]).replace(';', '')
-    wordsPT.append(palavra)
-    wordsPT_sentiments.append(polaridade)
-    train.append((palavra, int(polaridade)))
-
-cl = NaiveBayesClassifier(train)
 
 """### Word Cloud"""
 
@@ -197,13 +200,6 @@ plt.show()
 
 """### Time Series"""
 
-#Tweets per Day
-data = tweets_df
-
-data['Date'] = pd.to_datetime(data['Date']).apply(lambda x: x.date())
-
-tlen = pd.Series(data['Date'].value_counts(), index=data['Date'])
-tlen.plot(figsize=(16,4), color='r');
 
 """# Twitter Setiments Analisys with NLTK
 

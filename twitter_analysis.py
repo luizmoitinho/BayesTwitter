@@ -13,11 +13,14 @@ from sklearn.naive_bayes import MultinomialNB
 
 class TwitterAnalysis():
     
-    def __init__(self):
-        self.BASE_DADOS = "baseDados.txt"
-        self.QUERY_PARAM = "assassino"
+    def __init__(self, BASE_DADOS = None, QUERY_PARAM = None):
         self.api = self.auth()
-        
+
+        if(BASE_DADOS == None):
+            self.BASE_DADOS = "baseDados.txt"
+        if(QUERY_PARAM == None):
+            self.QUERY_PARAM = "assassino"
+
         self.tweets = None
         self.info = None
         self.tweets_df = None
@@ -121,7 +124,6 @@ class TwitterAnalysis():
                     self.wordsPT_sentiments.append(t)
                     self.train.append((w, t))
 
-
         self.vectorizer = CountVectorizer(analyzer="word")
         freq_tweets = self.vectorizer.fit_transform(self.wordsPT)
         self.modelo = MultinomialNB()
@@ -137,8 +139,8 @@ class TwitterAnalysis():
         predictionData = self.vectorizer.transform(self.tweets_df['Tweets'])
         self.tweets_df['SA NLTK']  = self.modelo.predict(predictionData)
 
-        for i in range(len(self.tweets_df['SA NLTK'])):
-            print(self.tweets_df['Tweets'][i], ' : ', self.tweets_df['SA NLTK'][i])
+        #for i in range(len(self.tweets_df['SA NLTK'])):
+           #print(self.tweets_df['Tweets'][i], ' : ', self.tweets_df['SA NLTK'][i])
 
         pos_tweets = [ tweet for index, tweet in enumerate(self.tweets_df['Tweets']) if self.tweets_df['SA NLTK'][index] > 0]
         neg_tweets = [ tweet for index, tweet in enumerate(self.tweets_df['Tweets']) if self.tweets_df['SA NLTK'][index] < 0]
