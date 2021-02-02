@@ -69,7 +69,7 @@ class TwitterAnalysis():
 
 
     def auth(self):
-       
+        
         
         auth = tweepy.OAuthHandler(consumer_key,consumer_secret)
         auth.set_access_token(access_token,access_token_secret)
@@ -237,7 +237,6 @@ class TwitterAnalysis():
         data['Date'] = pd.to_datetime(data['Date']).apply(lambda x: x.date())
 
         tlen = pd.Series(data['Date'].value_counts(), index=data['Date'])
-        tlen = tlen.drop_duplicates()
         tlen = sorted(tlen.items())
         
         x = [value[0].strftime("%d/%m/%y") for value in tlen]
@@ -267,8 +266,6 @@ def execute_analysis():
     percent_positive, percent_negative =  analise.get_result(resultado[0],resultado[1])
 
     return {
-        "positive": round(percent_positive,2),
-        "negative": round(percent_negative,2),
         "data": analise.create_json(),
         "img_wd_path": analise.create_word_cloud(),
         "img_gp_path": analise.create_graphic(percent_positive,percent_negative),
