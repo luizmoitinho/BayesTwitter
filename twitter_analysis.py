@@ -1,21 +1,37 @@
+#Carregar Tweets
 import tweepy
+
+#Criar DataFrame
 import pandas as pd     
-import numpy as np 
-import time
+import numpy as np
+
+#Manipulação de arquivo e objetos
 import os
-import re
 import pickle
-from textblob.classifiers import NaiveBayesClassifier
-import nltk
+from imageio import imread
+
+#Treinamento
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 
+#Expressoes regulares
+import re
+
+import warnings
+
+#Criar API
 from flask import Flask, request
 from flask_cors import CORS
-import requests #pip install requests
+import requests 
 import json
 
+#Criar nuvem de palavras
+from wordcloud import WordCloud, ImageColorGenerator, STOPWORDS
 
+#Plotar graficos e imagens
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 class TwitterAnalysis():
     
@@ -31,10 +47,17 @@ class TwitterAnalysis():
         self.info = None
         self.tweets_df = None
 
-        self.base_path = 'DataSet'
+        self.base_path = 'Utilitarios/DataSet'
         self.train = []
         self.wordsPT = []
         self.wordsPT_sentiments = []
+
+        self.file_stopwords = 'Utilitarios/stopwords.txt'
+        self.stopwords = []
+        self.words = None
+        self.words_clean = None
+        self.file_mask = 'Utilitarios/mask.png'
+        self.image = 'Word_Cloud.png'
     
         self.vectorizer = None
         self.modelo = None
@@ -45,9 +68,9 @@ class TwitterAnalysis():
         access_token='3314192050-3FzJ7jYYGnkLxm5DUarXOXUEgvIsgQhvgvEKraJ'
         access_token_secret='CASsGqefKg7SFlzf3K7b7LvrlC7jetxzIIAesBOxXdHuK'
 
-        #Autentication Methods
         auth = tweepy.OAuthHandler(consumer_key,consumer_secret)
         auth.set_access_token(access_token,access_token_secret)
+
         return tweepy.API(auth)
 
     def search_tweets(self):
@@ -145,9 +168,6 @@ class TwitterAnalysis():
         predictionData = self.vectorizer.transform(self.tweets_df['Tweets'])
         self.tweets_df['SA NLTK']  = self.modelo.predict(predictionData)
 
-        #for i in range(len(self.tweets_df['SA NLTK'])):
-           #print(self.tweets_df['Tweets'][i], ' : ', self.tweets_df['SA NLTK'][i])
-
         pos_tweets = [ tweet for index, tweet in enumerate(self.tweets_df['Tweets']) if self.tweets_df['SA NLTK'][index] > 0]
         neg_tweets = [ tweet for index, tweet in enumerate(self.tweets_df['Tweets']) if self.tweets_df['SA NLTK'][index] < 0]
 
@@ -156,14 +176,43 @@ class TwitterAnalysis():
     def get_result(self,positive,negative):
         return len(positive)*100/len(self.tweets_df['Tweets']), len(negative)*100/len(self.tweets_df['Tweets'])
 
-    def display_result(self,positive,negative):
-        print("Porcentagem de Tweets Positivos: {}%".format(len(positive)*100/len(self.tweets_df['Tweets'])))
-        print("Porcentagem de Tweets Negativos: {}%".format(len(negative)*100/len(self.tweets_df['Tweets'])))
-
     def create_json(self):
         json_tweets = self.tweets_df.to_json(orient = 'records')
         return json.loads(json_tweets)
 
+    def create_word_cloud(self):
+        
+        with open(self.file_stopwords, 'r', encoding = 'utf-8') as f:
+            [self.stopwords.append(self.wordsPT) for line in f for self.wordsPT in line.split()]
+
+        self.words = ' '.join(self.tweets_df['Tweets'])
+
+        self.words_clean = " ".join([word for word in self.words.split()
+                                    if 'https' not in word
+                                        and not word.startswith('@')
+                                        and word != 'RT'
+                                    ])
+
+        warnings.simplefilter('ignore')
+
+        twitter_mask = imread(self.file_mask)
+
+        wc = WordCloud(min_font_size = 10, 
+                      max_font_size = 300, 
+                      background_color = 'white', 
+                      mode = "RGB",
+                      stopwords = self.stopwords,
+                      width = 2000,
+                      height = 1000,
+                      mask = twitter_mask,
+                      normalize_plurals= True).generate(self.words_clean)
+
+        plt.imshow(wc, interpolation="bilinear")
+        plt.axis("off")
+        plt.savefig(self.image, dpi=300)
+        plt.close()
+
+        return self.image
 
 app = Flask("twitter_analysis")
 CORS(app)
@@ -176,14 +225,16 @@ def execute_analysis():
     analise.tweets_df =  analise.create_dataframe()
     analise.source_tweets(analise.tweets_df)
     analise.trainnig()
+
     resultado = analise.execute()
-    #analise.display_result(resultado[0],resultado[1])
+
     percent_positive, percent_negative =  analise.get_result(resultado[0],resultado[1])
+
     return {
-        "positive":percent_positive,
-        "negative":percent_negative,
-        "data": analise.create_json()
-        
+        "positive": round(percent_positive,2),
+        "negative": round(percent_negative,2),
+        "data": analise.create_json(),
+        "img_path": analise.create_word_cloud()
     }
 
 app.run(debug=True)
