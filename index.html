@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Twitter Analysis - IA</title>
-    <script src="https://code.jquery.com/jquery-3.5.1.js"
-        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
-        crossorigin="anonymous"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    
+    <script src="assets/JQuery/jquery-3.5.1.min.js"></script>
+    <script src="assets/Bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <link rel="stylesheet" href="assets/Bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
@@ -23,7 +21,8 @@
     <main class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-6">
-                <input class="form-control col-12" type="text" value="vacina" name="query_param" onfocus="">
+                <input type="text" class="form-control" name="query_param" placeholder="Ex: vacina">
+
             </div>
             <div class="col-2">
                 <button id="enviar" class="btn btn-primary col-12">Buscar</button>
@@ -96,10 +95,14 @@
         $('#positive').html('0%')
         $('#negative').html('0%')
 
-       
+      
 
         let url_word_cloud
         $('#enviar').click(function () {
+            if($('input[name=query_param]').val().length == 0){
+                alert("Digite algo, por favor!")
+                return
+            }
             $.ajax({
                 url: api_url + "/execute",
                 method: "POST",
@@ -121,7 +124,7 @@
                         classe = elem["SA NLTK"] == -1 ? "class='text-danger'" : "";
                         list_ol += `<li ${classe}>${elem.Tweets}</li>`;
                     }
-                    
+
                     $("#list_tweets").html(list_ol)
                     d = new Date();
                     $("#url_word_cloud").css("background-image", `url('${response.img_path}?${d.getTime()}')`)

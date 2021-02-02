@@ -20,6 +20,10 @@
 #url_word_cloud{
   background-repeat: no-repeat;
   background-size: contain;
-  height: 1200px;
+  height: 800px;
+}
 
+.highlight { 
+  color: #000000;
+  background-color: yellow 
 }

@@ -62,8 +62,10 @@ class TwitterAnalysis():
         self.vectorizer = None
         self.modelo = None
 
+
+
     def auth(self):
- 
+
 
         auth = tweepy.OAuthHandler(consumer_key,consumer_secret)
         auth.set_access_token(access_token,access_token_secret)
@@ -96,7 +98,7 @@ class TwitterAnalysis():
             file.write(newtweet+'\n')
             file.close()
             
-            if(count == 50):
+            if(count == 10):
                 break
             count = count + 1
         return tweets, info
@@ -211,7 +213,7 @@ class TwitterAnalysis():
 
         return self.image
     '''#def create_dados_por_dia(self)
-            
+            #def create_
 
     
     
@@ -229,7 +231,6 @@ def execute_analysis():
     analise.tweets_df =  analise.create_dataframe()
     analise.source_tweets(analise.tweets_df)
     analise.trainnig()
-
     resultado = analise.execute()
 
     percent_positive, percent_negative =  analise.get_result(resultado[0],resultado[1])
