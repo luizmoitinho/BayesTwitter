@@ -29,8 +29,10 @@
                     </span>
                 </div>
                 <hr>
-                <div>
-
+                <div row align-items-center>
+                    <ol id="list_tweets">
+                            
+                    </ol>
                 </div>
             </div>
         </div>
@@ -44,6 +46,10 @@
     const api_url = "http://127.0.0.1:5000";
 
     $(document).ready(function(){
+
+        $('#positive').html(0)
+        $('#negative').html(0)
+
         $('#enviar').click(function(){
             $.ajax({
                 url: api_url+"/execute",
@@ -55,6 +61,14 @@
                     console.log(response)
                     $('#positive').html(response.positive)
                     $('#negative').html(response.negative)
+                   
+                    let list_ol = ''
+                    for(elem  of response.data){
+                        classe = elem["SA NLTK"] == -1 ? "class='text-danger'" : ""; 
+                        list_ol += `<li ${classe}>${elem.Tweets}</li>`;
+                    }
+                    $("#list_tweets").html(list_ol)
+
                 },
                 error:function(response){
                     alert('Não foi possivel conectar ao servidor')

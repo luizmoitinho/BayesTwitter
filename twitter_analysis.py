@@ -160,8 +160,9 @@ class TwitterAnalysis():
         print("Porcentagem de Tweets Positivos: {}%".format(len(positive)*100/len(self.tweets_df['Tweets'])))
         print("Porcentagem de Tweets Negativos: {}%".format(len(negative)*100/len(self.tweets_df['Tweets'])))
 
-
-
+    def create_json(self):
+        json_tweets = self.tweets_df.to_json(orient = 'records')
+        return json.loads(json_tweets)
 
 
 app = Flask("twitter_analysis")
@@ -181,8 +182,8 @@ def execute_analysis():
     return {
         "positive":percent_positive,
         "negative":percent_negative,
-        "data":[]
+        "data": analise.create_json()
+        
     }
-
 
 app.run(debug=True)
