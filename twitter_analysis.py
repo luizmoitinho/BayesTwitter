@@ -34,6 +34,12 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+#Plotar Mapa
+from geopy.geocoders import Nominatim
+import folium
+from folium import plugins
+from geopy.geocoders import Nominatim
+
 class TwitterAnalysis():
     
     def __init__(self, BASE_DADOS = None, QUERY_PARAM = None):
@@ -62,6 +68,7 @@ class TwitterAnalysis():
         self.image_word_cloud = 'Word_Cloud.png'
         self.image_graphic = 'Graphic.png'
         self.image_Time_line = 'Time_line.png'
+        self.image_Heat_Map = 'Heat_Map.html'
     
         self.vectorizer = None
         self.modelo = None
@@ -242,12 +249,35 @@ class TwitterAnalysis():
         x = [value[0].strftime("%d/%m/%y") for value in tlen]
         y = [value[1] for value in tlen]
         
-        plt.figure(figsize=(6,4))
+        plt.figure(figsize=(10,6))
         plt.plot(x, y, color='green')
         plt.scatter(x, y, color='red')
         plt.savefig(self.image_Time_line, format='png')
 
         return self.image_Time_line
+    
+    def create_heat_map(self):
+        geolocator = Nominatim(user_agent="TweeterSentiments")
+
+        latitude = []
+        longitude = []
+
+        for user_location in self.tweets_df['User Location']:
+            try:
+                location = geolocator.geocode(user_location)
+                latitude.append(location.latitude)
+                longitude.append(location.longitude)
+            except:
+                continue
+
+        coordenadas = np.column_stack((latitude, longitude))
+
+        mapa = folium.Map(location=[-15.788497,-47.879873],zoom_start=4.)
+
+        mapa.add_child(plugins.HeatMap(coordenadas))
+        mapa.save(self.image_Heat_Map)
+
+        return self.image_Heat_Map
 
 app = Flask("twitter_analysis")
 CORS(app)
@@ -269,7 +299,8 @@ def execute_analysis():
         "data": analise.create_json(),
         "img_wd_path": analise.create_word_cloud(),
         "img_gp_path": analise.create_graphic(percent_positive,percent_negative),
-        "img_tl_path": analise.create_time_line()
+        "img_tl_path": analise.create_time_line(),
+        "html_hm_path": analise.create_heat_map()
     }
 
 app.run(debug=True)

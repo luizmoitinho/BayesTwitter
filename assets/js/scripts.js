@@ -33,7 +33,8 @@ $(document).ready(function () {
                 $('#list_tweets li').mark($('input[name=query_param]').val(), {accuracy: "exactly"})
                 $("#url_word_cloud").css("background-image", `url('${response.img_wd_path}?${d.getTime()}')`)
                 $("#url_graphic").css("background-image", `url('${response.img_gp_path}?${d.getTime()}')`)
-                $("#url_line_time").css("background-image", `url('${response.img_tl_path}?${d.getTime()}')`)        
+                $("#url_line_time").css("background-image", `url('${response.img_tl_path}?${d.getTime()}')`) 
+                $("#html_heat_map").html(`<iframe src = ${response.html_hm_path}?${d.getTime()} height = '100%' width ='100%' ></iframe>` )      
 
             },
             error: function (response) {
