@@ -1,18 +1,6 @@
 const api_url = "http://127.0.0.1:5000";
 
-function hiliter(word, element) {
-    var rgxp = new RegExp(word, 'g');
-    var repl = '<span class="highlight">' + word + '</span>';
-    element.innerHTML = element.innerHTML.replace(rgxp, repl);
-}
-
-
 $(document).ready(function () {
-
-    $('#positive').html('0%')
-    $('#negative').html('0%')
-
-  
 
     let url_word_cloud
     $('#enviar').click(function () {
@@ -33,20 +21,20 @@ $(document).ready(function () {
             
             success: function (response) {
                 $('#loading-frame').removeClass('d-flex justify-content-center align-items-center');
-                $('#positive').html(`${response.positive}%`)
-                $('#negative').html(`${response.negative}%`)
 
                 let list_ol = ''
                 for (elem of response.data) {
                     classe = elem["SA NLTK"] == -1 ? "class='text-danger'" : "";
                     list_ol += `<li ${classe}>${elem.Tweets}</li>`;
                 }
+                d = new Date();
+
                 $("#list_tweets").html(list_ol)
                 $('#list_tweets li').mark($('input[name=query_param]').val(), {accuracy: "exactly"})
-                d = new Date();
-                $("#url_word_cloud").css("background-image", `url('${response.img_path}?${d.getTime()}')`)
-             
-                
+                $("#url_word_cloud").css("background-image", `url('${response.img_wd_path}?${d.getTime()}')`)
+                $("#url_graphic").css("background-image", `url('${response.img_gp_path}?${d.getTime()}')`)
+                $("#url_line_time").css("background-image", `url('${response.img_tl_path}?${d.getTime()}')`)        
+
             },
             error: function (response) {
                 alert('Não foi possivel conectar ao servidor')

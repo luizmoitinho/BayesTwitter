@@ -17,6 +17,7 @@ from sklearn.naive_bayes import MultinomialNB
 #Expressoes regulares
 import re
 
+#erros
 import warnings
 
 #Criar API
@@ -57,7 +58,10 @@ class TwitterAnalysis():
         self.words = None
         self.words_clean = None
         self.file_mask = 'Utilitarios/mask.png'
-        self.image = 'Word_Cloud.png'
+
+        self.image_word_cloud = 'Word_Cloud.png'
+        self.image_graphic = 'Graphic.png'
+        self.image_Time_line = 'Time_line.png'
     
         self.vectorizer = None
         self.modelo = None
@@ -65,8 +69,8 @@ class TwitterAnalysis():
 
 
     def auth(self):
-
-
+       
+        
         auth = tweepy.OAuthHandler(consumer_key,consumer_secret)
         auth.set_access_token(access_token,access_token_secret)
 
@@ -98,8 +102,8 @@ class TwitterAnalysis():
             file.write(newtweet+'\n')
             file.close()
             
-            if(count == 10):
-                break
+            # if(count == 10):
+            #     break
             count = count + 1
         return tweets, info
 
@@ -208,17 +212,43 @@ class TwitterAnalysis():
 
         plt.imshow(wc, interpolation="bilinear")
         plt.axis("off")
-        plt.savefig(self.image, dpi=300)
+        plt.savefig(self.image_word_cloud, dpi=300)
         plt.close()
 
-        return self.image
-    '''#def create_dados_por_dia(self)
-            #def create_
+        return self.image_word_cloud
 
+    def create_graphic(self, percent_positive, percent_negative):
+        sentiments = ['Positivos', 'Negativos']
+        percents = [percent_positive, percent_negative]
     
-    
-    '''
-    
+        cores = ['green', 'red']
+        explode = (0.1, 0) 
+        total = sum(percents)
+
+        plt.pie(percents, labels=sentiments, colors=cores, explode=explode, autopct=lambda p: '{:.2f}%'.format(p), shadow=True, startangle=90)
+        plt.savefig(self.image_graphic, format='png')
+        plt.close()
+
+        return self.image_graphic
+
+    def create_time_line(self):
+        data = self.tweets_df
+
+        data['Date'] = pd.to_datetime(data['Date']).apply(lambda x: x.date())
+
+        tlen = pd.Series(data['Date'].value_counts(), index=data['Date'])
+        tlen = tlen.drop_duplicates()
+        tlen = sorted(tlen.items())
+        
+        x = [value[0].strftime("%d/%m/%y") for value in tlen]
+        y = [value[1] for value in tlen]
+        
+        plt.figure(figsize=(6,4))
+        plt.plot(x, y, color='green')
+        plt.scatter(x, y, color='red')
+        plt.savefig(self.image_Time_line, format='png')
+
+        return self.image_Time_line
 
 app = Flask("twitter_analysis")
 CORS(app)
@@ -231,6 +261,7 @@ def execute_analysis():
     analise.tweets_df =  analise.create_dataframe()
     analise.source_tweets(analise.tweets_df)
     analise.trainnig()
+
     resultado = analise.execute()
 
     percent_positive, percent_negative =  analise.get_result(resultado[0],resultado[1])
@@ -239,7 +270,9 @@ def execute_analysis():
         "positive": round(percent_positive,2),
         "negative": round(percent_negative,2),
         "data": analise.create_json(),
-        "img_path": analise.create_word_cloud()
+        "img_wd_path": analise.create_word_cloud(),
+        "img_gp_path": analise.create_graphic(percent_positive,percent_negative),
+        "img_tl_path": analise.create_time_line()
     }
 
 app.run(debug=True)

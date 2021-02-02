@@ -16,8 +16,7 @@
   height: 100px;
 }
 
-
-#url_word_cloud{
+#url_word_cloud, #url_graphic, #url_line_time{
   background-repeat: no-repeat;
   background-size: contain;
   height: 800px;
