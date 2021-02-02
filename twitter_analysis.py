@@ -63,10 +63,7 @@ class TwitterAnalysis():
         self.modelo = None
 
     def auth(self):
-        consumer_key='srt5WEhYgrJ5SFGkCtkDSvjzH'
-        consumer_secret='HF91PBFEO7PyKBOUj1JRsFUutHW0VrXstHSxzISR6mkU32eHN1'
-        access_token='3314192050-3FzJ7jYYGnkLxm5DUarXOXUEgvIsgQhvgvEKraJ'
-        access_token_secret='CASsGqefKg7SFlzf3K7b7LvrlC7jetxzIIAesBOxXdHuK'
+ 
 
         auth = tweepy.OAuthHandler(consumer_key,consumer_secret)
         auth.set_access_token(access_token,access_token_secret)
