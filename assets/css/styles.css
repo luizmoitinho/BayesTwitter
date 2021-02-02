@@ -27,3 +27,19 @@
   color: #000000;
   background-color: yellow 
 }
+
+.tab-content{
+  border: 1px solid #dfdfdf;
+  border-radius: 0 0 4px 4px;
+  border-top: transparent;
+}
+
+#list_tweets{
+  padding-right: 32px;
+  list-style-position: inside;
+}
+
+#list_tweets li {
+  border-bottom: 1px solid #dfdfdf;
+  padding: 20px 0 20px 0;
+}
