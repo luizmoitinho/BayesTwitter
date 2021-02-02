@@ -213,6 +213,13 @@ class TwitterAnalysis():
         plt.close()
 
         return self.image
+    '''#def create_dados_por_dia(self)
+            
+
+    
+    
+    '''
+    
 
 app = Flask("twitter_analysis")
 CORS(app)

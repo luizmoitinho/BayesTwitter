@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Twitter Analysis - IA</title>
     <script src="https://code.jquery.com/jquery-3.5.1.js"
         integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
@@ -12,10 +12,13 @@
         crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
 <body>
+    <div id="loading-frame">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
 
     <main class="container mt-5">
         <div class="row justify-content-center">
@@ -24,11 +27,6 @@
             </div>
             <div class="col-2">
                 <button id="enviar" class="btn btn-primary col-12">Buscar</button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-6">
-                <span id='msgload'></span>
             </div>
         </div>
         <div class="row mt-5 justify-content-center">
@@ -42,7 +40,6 @@
                 </div>
                 <hr>
                 <div row align-items-center>
-
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <a class="nav-link active" id="home-tab" data-bs-toggle="tab" href="#home" role="tab"
@@ -68,7 +65,7 @@
                             </ol>
                         </div>
                         <div class="tab-pane fade" id="word" role="tabpanel" aria-labelledby="word-tab">
-                            <div id="url_word_cloud" width=750px height = 500px>
+                            <div id="url_word_cloud" class="img-fluid">
                                 
                             </div>
                         </div>
@@ -96,9 +93,12 @@
 
     $(document).ready(function () {
 
-        $('#positive').html(0)
-        $('#negative').html(0)
+        $('#positive').html('0%')
+        $('#negative').html('0%')
 
+        $("#url_word_cloud").css("background-image", "url('Word_Cloud.png')")
+
+        let url_word_cloud
         $('#enviar').click(function () {
             $.ajax({
                 url: api_url + "/execute",
@@ -108,32 +108,32 @@
                 },
 
                 beforeSend: function () {
-                    $('#msgload').html('Buscando Dados...');
+                    $('#loading-frame').addClass('d-flex justify-content-center align-items-center');
                 },
                 
                 success: function (response) {
-                    console.log(response)
-
-                    $('#msgload').html('');
-                    $('#positive').html(response.positive)
-                    $('#negative').html(response.negative)
+                    $('#loading-frame').removeClass('d-flex justify-content-center align-items-center');
+                    $('#positive').html(`${response.positive}%`)
+                    $('#negative').html(`${response.negative}%`)
 
                     let list_ol = ''
                     for (elem of response.data) {
                         classe = elem["SA NLTK"] == -1 ? "class='text-danger'" : "";
                         list_ol += `<li ${classe}>${elem.Tweets}</li>`;
                     }
-
+                    
                     $("#list_tweets").html(list_ol)
-                    $("#url_word_cloud").css({'background-image': "url("+response.img_path+")"})
-
+                    d = new Date();
+                    $("#url_word_cloud").css("background-image", `url('${response.img_path}?${d.getTime()}')`)
+                 
+                    
                 },
                 error: function (response) {
                     alert('Não foi possivel conectar ao servidor')
+                    $('#loading-frame').removeClass('d-flex justify-content-center align-items-center');
                 }
             });
         })
-
     })
 
 </script>
