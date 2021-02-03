@@ -1,0 +1,47 @@
+#loading-frame{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.631);
+  z-index: 2;
+}
+
+#loading-frame div{
+  z-index: 3;
+  font-size: 20px;
+  width: 100px;
+  height: 100px;
+}
+
+#url_word_cloud, #url_graphic, #url_line_time, #html_heat_map{
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 800px;
+}
+#list_tweets{
+  min-height: 800px;
+}
+
+.highlight { 
+  color: #000000;
+  background-color: yellow 
+}
+
+.tab-content{
+  border: 1px solid #dfdfdf;
+  border-radius: 0 0 4px 4px;
+  border-top: transparent;
+}
+
+#list_tweets{
+  padding-right: 32px;
+  list-style-position: inside;
+}
+
+#list_tweets li {
+  border-bottom: 1px solid #dfdfdf;
+  padding: 20px 0 20px 0;
+}
