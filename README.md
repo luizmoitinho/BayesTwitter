@@ -27,4 +27,4 @@
 > python twitter_analysis.py
 2. Abra o index.html
 3. Informe uma palavra chave no campo e pesquise.
-4. Aguarde um tempinho para processar as informações.
+4. Aguarde um tempinho para processar as informações :) ! 
