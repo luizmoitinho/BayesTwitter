@@ -75,9 +75,9 @@ class TwitterAnalysis():
 
 
 
-    def auth(self):
-        
-        
+    def auth(self): 
+
+
         auth = tweepy.OAuthHandler(consumer_key,consumer_secret)
         auth.set_access_token(access_token,access_token_secret)
 
@@ -150,7 +150,7 @@ class TwitterAnalysis():
         return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
 
     
-    def trainnig(self):
+    def trainning(self):
         files = [os.path.join(self.base_path, f) for f in os.listdir(self.base_path)]
 
         for file in files:
@@ -289,7 +289,7 @@ def execute_analysis():
     analise.tweets, analise.info = analise.search_tweets()
     analise.tweets_df =  analise.create_dataframe()
     analise.source_tweets(analise.tweets_df)
-    analise.trainnig()
+    analise.trainning()
 
     resultado = analise.execute()
 
